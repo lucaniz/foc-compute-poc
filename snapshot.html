@@ -1,0 +1,363 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PieceWork Snapshot</title>
+<link rel="icon" href="data:image/svg+xml,&lt;svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'&gt;&lt;text y='.9em' font-size='90'&gt;⚙️&lt;/text&gt;&lt;/svg&gt;">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800&amp;family=Source+Sans+3:wght@400;600&amp;family=JetBrains+Mono:wght@500;600&amp;display=swap">
+<style>
+
+:root{
+  --ground:#EEF3F8; --surface:#FFFFFF; --surface-2:#F5F8FC; --line:#D5DFEA;
+  --ink:#0E1A2B; --ink-2:#4A5A70; --ink-3:#7A889B;
+  --accent:#0A74E8; --accent-ink:#FFFFFF; --accent-soft:#E1EEFD;
+  --money:#0B8F7F; --money-soft:#DDF3EF;
+  --warn:#A86200; --warn-soft:#FDF0DA;
+  --mono:"JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  --body:"Source Sans 3", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --display:"Archivo", "Source Sans 3", system-ui, sans-serif;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --ground:#0A111C; --surface:#111B2A; --surface-2:#0E1724; --line:#243349;
+    --ink:#E4ECF6; --ink-2:#A6B4C7; --ink-3:#7485A0;
+    --accent:#4C9DFF; --accent-ink:#06121F; --accent-soft:#132A47;
+    --money:#3CC7B3; --money-soft:#0F2E2B;
+    --warn:#F0AE4A; --warn-soft:#33250F;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"]{
+  --ground:#0A111C; --surface:#111B2A; --surface-2:#0E1724; --line:#243349;
+  --ink:#E4ECF6; --ink-2:#A6B4C7; --ink-3:#7485A0;
+  --accent:#4C9DFF; --accent-ink:#06121F; --accent-soft:#132A47;
+  --money:#3CC7B3; --money-soft:#0F2E2B;
+  --warn:#F0AE4A; --warn-soft:#33250F;
+  color-scheme: dark;
+}
+*{box-sizing:border-box}
+body{background:var(--ground);color:var(--ink);font:17px/1.55 var(--body);margin:0;padding:28px 16px 48px}
+.wrap{max-width:940px;margin:0 auto;display:flex;flex-direction:column;gap:22px}
+h1,h2,h3{font-family:var(--display);margin:0;text-wrap:balance}
+h1{font-size:clamp(2.1rem,5vw,3rem);font-weight:800;letter-spacing:-.02em;line-height:1.05}
+h2{font-size:clamp(1.35rem,3vw,1.7rem);font-weight:700;letter-spacing:-.01em}
+.eyebrow{font:600 .75rem/1 var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--accent)}
+.lede{color:var(--ink-2);max-width:62ch;margin:0}
+a{color:var(--accent)}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:22px}
+.choices{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px}
+.choice{text-align:left;font:inherit;color:inherit;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:20px;cursor:pointer;display:flex;flex-direction:column;gap:8px}
+.choice:hover{border-color:var(--accent)}
+.choice .k{font:600 .75rem var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--accent)}
+.choice h3{font-size:1.25rem}
+.choice p{margin:0;color:var(--ink-2)}
+.choice .go{margin-top:6px;font-weight:600;color:var(--accent)}
+.scene{display:grid;grid-template-columns:1fr auto 1fr auto 1fr;align-items:stretch;gap:10px}
+.actor{border:1px solid var(--line);border-radius:12px;padding:14px;background:var(--surface-2);display:flex;flex-direction:column;gap:6px;min-width:0}
+.actor .who{display:flex;align-items:center;gap:8px;font:600 .8rem var(--body);letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3)}
+.actor .who svg{width:20px;height:20px;flex:none;color:var(--ink-2)}
+.actor .big{font:600 1.6rem var(--mono);font-variant-numeric:tabular-nums;line-height:1.1}
+.actor .unit{font:500 .8rem var(--mono);color:var(--ink-3)}
+.actor .note{color:var(--ink-2);font-size:.9rem}
+.actor.hl{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.actor.pay .big{color:var(--warn)}
+.actor.prov .big{color:var(--money)}
+.flow{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;min-width:74px;text-align:center;font-size:.78rem;color:var(--ink-3)}
+.flow .arr{font:700 1.4rem var(--body);color:var(--line)}
+.flow.on .arr{color:var(--money)}
+.flow.on{color:var(--money);font-weight:600}
+.flow.back .arr{color:var(--accent)}
+.flow.back{color:var(--accent);font-weight:600}
+@media (max-width:720px){
+  .scene{grid-template-columns:1fr}
+  .flow{flex-direction:row;min-width:0;gap:8px}
+  .flow .arr{transform:rotate(90deg)}
+}
+.files{list-style:none;margin:4px 0 0;padding:0;display:flex;flex-direction:column;gap:3px;font-size:.86rem}
+.files li{display:flex;justify-content:space-between;gap:8px}
+.files .sz{font:.78rem var(--mono);color:var(--ink-3);white-space:nowrap}
+.files li.new{color:var(--money);font-weight:600}
+.files li.busy{color:var(--warn)}
+.files li.done::after{content:" ✓";color:var(--money)}
+.text{display:flex;flex-direction:column;gap:10px;max-width:68ch}
+.text p{margin:0;color:var(--ink-2)}
+.text b{color:var(--ink)}
+.live{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+.stat{border-radius:10px;padding:10px 14px;background:var(--surface-2);border:1px solid var(--line)}
+.stat .l{font-size:.8rem;color:var(--ink-3)}
+.stat .v{font:600 1.35rem var(--mono);font-variant-numeric:tabular-nums}
+.stat.clock .v{color:var(--accent)}
+.stat.late .v{color:var(--warn)}
+.bubble{border-radius:12px;padding:10px 14px;background:var(--accent-soft);font-size:.95rem}
+.bubble .q{font-weight:600}
+.bubble .a{color:var(--ink-2)}
+.callout{border-radius:12px;padding:12px 16px;background:var(--money-soft);color:var(--ink)}
+.callout.warn{background:var(--warn-soft)}
+.nav{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.nav .sp{flex:1}
+.dots{display:flex;gap:6px}
+.dots span{width:8px;height:8px;border-radius:50%;background:var(--line)}
+.dots span.on{background:var(--accent)}
+button.b{font:600 1rem var(--body);border:1px solid var(--line);background:var(--surface);color:var(--ink);padding:10px 16px;border-radius:9px;cursor:pointer}
+button.b.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+button.b:disabled{opacity:.4;cursor:not-allowed}
+button.b:hover:not(:disabled){border-color:var(--accent)}
+a.b{display:inline-block;text-decoration:none;text-align:center}
+button:focus-visible,.choice:focus-visible,a.b:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.progress{height:8px;border-radius:99px;background:var(--line);overflow:hidden}
+.progress span{display:block;height:100%;background:var(--accent);transition:width .35s}
+footer{color:var(--ink-3);font-size:.85rem;display:flex;flex-direction:column;gap:4px}
+@media (prefers-reduced-motion:reduce){.progress span{transition:none}}
+
+.top{display:flex;flex-direction:column;gap:10px}
+.top .lede{max-width:70ch}
+.chain{display:flex;flex-wrap:wrap;align-items:center;gap:6px 14px;font-size:.88rem;color:var(--ink-2)}
+.chain .live{display:inline-flex;align-items:center;gap:6px;font-weight:600;color:var(--ink)}
+.chain .dot{width:8px;height:8px;border-radius:50%;background:var(--money)}
+.chain .sep{color:var(--line)}
+.chain a{color:var(--ink-2);text-decoration:none;border-bottom:1px dotted var(--ink-3)}
+.chain a:hover{color:var(--accent)}
+.pill{display:inline-block;font:600 .72rem var(--body);letter-spacing:.06em;text-transform:uppercase;padding:3px 8px;border-radius:99px;background:var(--money-soft);color:var(--money)}
+.pill.warn{background:var(--warn-soft);color:var(--warn)}
+.pill.off{background:var(--surface-2);color:var(--ink-3);border:1px solid var(--line)}
+.tabs{display:flex;gap:8px;flex-wrap:wrap}
+.tabs button{font:600 1rem var(--body);padding:10px 16px;border-radius:9px;border:1px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer}
+.tabs button.on{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.panel{display:flex;flex-direction:column;gap:14px}
+.files li a{color:inherit;text-decoration:none;border-bottom:1px dotted var(--ink-3);cursor:pointer}
+.files .pid{font:.72rem var(--mono);color:var(--ink-3);margin-right:6px}
+.story{border-left:4px solid var(--accent);padding:10px 16px;background:var(--accent-soft);border-radius:0 12px 12px 0}
+.story.err{border-color:var(--warn);background:var(--warn-soft)}
+.log{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px;max-height:340px;overflow:auto}
+.log li{display:grid;grid-template-columns:78px 1fr;gap:10px;font-size:.9rem;padding:6px 0;border-bottom:1px solid var(--line)}
+.log .who{font:600 .7rem var(--body);letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3);padding-top:3px}
+.log .who.you{color:var(--accent)} .log .who.prov{color:var(--money)}
+.log code{font:500 .78rem var(--mono);color:var(--ink-3);word-break:break-all}
+.jobs{display:flex;flex-direction:column;gap:10px}
+.job{border:1px solid var(--line);border-radius:12px;padding:12px 14px;background:var(--surface-2);display:flex;flex-direction:column;gap:6px}
+.job .h{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:center}
+input.q{font:inherit;padding:10px 12px;border-radius:9px;border:1px solid var(--line);background:var(--surface);color:var(--ink);flex:1;min-width:180px}
+select{font:inherit;padding:10px 12px;border-radius:9px;border:1px solid var(--line);background:var(--surface);color:var(--ink)}
+pre.viewer{white-space:pre-wrap;font:500 .82rem/1.5 var(--mono);background:var(--surface-2);border:1px solid var(--line);border-radius:10px;padding:12px;max-height:260px;overflow:auto;margin:0}
+.muted{color:var(--ink-3);font-size:.88rem}
+.offline{display:none}
+.spin{display:inline-block;width:14px;height:14px;border:2px solid var(--line);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite;vertical-align:-2px;margin-right:6px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.waitbar{height:6px;border-radius:99px;background:var(--line);overflow:hidden;margin:8px 0 4px}
+.waitbar span{display:block;height:100%;background:var(--accent);transition:width 1s linear}
+ol.steps2{list-style:none;margin:6px 0 0;padding:0;display:flex;flex-direction:column;gap:3px;font-size:.92rem}
+ol.steps2 li.done{color:var(--money)} ol.steps2 li.now{font-weight:600} ol.steps2 li.next{color:var(--ink-3)}
+@media (prefers-reduced-motion:reduce){.spin{animation:none}.waitbar span{transition:none}}
+.intro3{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+.intro3 > div{background:var(--surface-2);border:1px solid var(--line);border-radius:10px;padding:14px 16px}
+.intro3 .t{display:block;font:600 .75rem var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--accent);margin-bottom:8px}
+dl.terms{margin:0;display:flex;flex-direction:column;gap:2px}
+dl.terms dt{font-weight:600;color:var(--ink);font-size:.95rem}
+dl.terms dd{margin:0 0 8px;color:var(--ink-2);font-size:.92rem;line-height:1.45}
+dl.terms dd:last-child{margin-bottom:0}
+.intro3{grid-template-columns:repeat(3,minmax(0,1fr))}
+@media (max-width:760px){.intro3{grid-template-columns:minmax(0,1fr)}}
+.disclaimer{border:1px solid var(--line);border-left:4px solid var(--warn);background:var(--surface-2);border-radius:8px;padding:12px 16px;margin:12px 0 14px}
+.disclaimer .t{display:block;font:600 .75rem var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--warn);margin-bottom:6px}
+.disclaimer ul{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:3px;color:var(--ink-2);font-size:.95rem}
+table.ds{width:100%;border-collapse:collapse;font-size:.9rem}
+table.ds th,table.ds td{text-align:left;padding:6px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+table.ds th{font:600 .75rem var(--body);letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3)}
+table.ds td.mono{font:500 .78rem var(--mono);color:var(--ink-3);word-break:break-all}
+.ds-wrap{overflow-x:auto}
+.jobcard{border:1px solid var(--line);border-radius:10px;padding:10px 14px;background:var(--surface-2);font-size:.95rem}
+body.down .offline{display:block}
+</style>
+</head><body>
+<div class="wrap">
+  <div class="top">
+    <div>
+      <div class="eyebrow" id="eyebrow">PieceWork · snapshot of the live demo</div>
+      <h1>Compute on your PDP data set</h1>
+      <p class="lede" id="lede">The storage provider that holds your data also computes on it, paid through Filecoin Pay. This is a frozen copy of the live demo on Filecoin Calibration, taken on 21 September 2026: every transaction linked here is real.</p>
+    </div>
+    <div class="chain" id="chain"><span class="live"><span class="dot"></span>Filecoin Calibration</span>
+    <span class="sep">|</span><span>block 4,089,183 (at snapshot)</span>
+    <span class="sep">|</span><a href="https://filecoin-testnet.blockscout.com/address/0x09a0fDc2723fAd1A7b8e3e00eE5DF73841df55a0" target="_blank" rel="noopener">Filecoin Pay ↗</a>
+    <span class="sep">|</span><a href="https://filecoin-testnet.blockscout.com/address/0x04347c64F010f256f529aC94BC8Fe7A81abDf45A" target="_blank" rel="noopener">ComputeService ↗</a></div>
+  </div>
+
+  <div class="card" style="border-left:4px solid var(--accent)"><b>Snapshot: buttons are disabled here.</b> This page shows the state of the live demo after a series of real runs: balances, the client's data set with job results, and the jobs. To try it yourself, open the <a href="https://lucaniz.github.io/foc-compute-poc">live demo</a> (it runs from a test machine, so it may be offline).</div>
+
+  <div class="card panel" id="intro"><h2>How this demo works</h2>
+    <p class="muted">Every action on this page is a real transaction on the Filecoin Calibration network, signed by your wallet (the demo wallet or your own).</p>
+    <div class="disclaimer"><span class="t">Disclaimer</span><ul>
+      <li><b>Storage proofs are not run yet.</b> The demo provider does not submit proofs of possession; real proofs can be added later.</li>
+      <li><b>Calibration network.</b> Test tokens only. Each step takes 30–60&nbsp;seconds: Filecoin produces a block every 30&nbsp;seconds.</li>
+    </ul></div>
+    <div class="intro3">
+      <div><span class="t">Who is who</span><dl class="terms">
+        <dt>Client</dt><dd>You. You own the data set and pay for compute.</dd>
+        <dt>Service provider (SP)</dt><dd>Stores your data set and runs your workloads next to it.</dd>
+        <dt>ComputeService</dt><dd>The smart contract that enforces the payment rules.</dd>
+      </dl></div>
+      <div><span class="t">Two ways to pay</span><dl class="terms">
+        <dt>Pay for time</dt><dd>Rent a service next to your files, billed per epoch until you stop.</dd>
+        <dt>Pay per job</dt><dd>Order a result. The price is held and paid only if the result lands in your data set before the deadline.</dd>
+      </dl></div>
+      <div><span class="t">What is real</span><dl class="terms">
+        <dt>Transactions</dt><dd>Every step is an on-chain transaction, linked to the Blockscout explorer.</dd>
+        <dt>Contracts</dt><dd>Filecoin Pay, PDP and Warm Storage (FilOz's deployment), plus ComputeService.</dd>
+        <dt>Execution</dt><dd>Your signatures, and real workloads running in containers.</dd>
+      </dl></div>
+    </div></div>
+  <div class="card panel" id="wallet"><div class="row" style="justify-content:space-between"><div><h2>Who is who</h2>
+    <p class="muted">You are the client: <code>0x8AEba4800Cb9ea3a350E28749F25a31E18B38d46</code> (demo wallet). The storage provider is the demo program: <code>0xA0C38545600fe067D79Cac5215049eEb4BF387d0</code>.</p></div></div></div>
+  <div id="scene"><div class="scene">
+    <div class="actor"><div class="who"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"></circle><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"></path></svg>You · 0x8AEb…8d46</div>
+      <div class="big">4.268</div><div class="unit">USDFC available in Filecoin Pay</div>
+      <div class="note">In your wallet, not yet deposited in Filecoin Pay: 7.000 USDFC<br>Funded until block 7162012</div></div>
+    <div class="flow "><span class="arr">→</span><span></span></div>
+    <div class="actor pay"><div class="who"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="6" width="18" height="14" rx="2"></rect><path d="M3 10h18M8 15h3"></path></svg>On hold in Filecoin Pay</div>
+      <div class="big">0.499</div><div class="unit">USDFC held (safety margin, job price, and your storage reserve)</div></div>
+    <div class="flow "><span class="arr">→</span><span></span></div>
+    <div class="actor prov"><div class="who"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="3" width="16" height="7" rx="1.5"></rect><rect x="4" y="14" width="16" height="7" rx="1.5"></rect><path d="M8 6.5h.01M8 17.5h.01"></path></svg>Storage provider</div>
+      <div class="big">3.217</div><div class="unit">USDFC earned (in Filecoin Pay)</div>
+      <div class="note">Holds your data set #37109 (Warm Storage, PDP). <span style="color:var(--money)">Green</span> = results added by jobs.</div>
+      <div class="note"><span class="pill off">PDP proofs: not run in this demo</span> A real provider must prove it still holds your data once per proving period: 240 blocks (2 h) on Calibration, 2880 blocks (24 h) on mainnet. The demo provider does not run a prover yet; real proofs can be added later. The compute and payment flows do not depend on them.</div>
+      <div class="note">12 files in your data set: see <b>Your data set</b> below.</div></div>
+  </div></div>
+
+  <div class="card panel" id="dataset"><div class="row" style="justify-content:space-between"><h2>Your data set #37109</h2>
+      <span class="muted">held by the service provider 0xA0C385… · created in <a href="https://calibration.filfox.info/en/message/bafy2bzaceai4tutttfwqqlo2u77hmqze5tjwo6x2ydpd25pzdzhfqxwqycpgw" target="_blank" rel="noopener">this transaction</a></span></div>
+    <p class="muted">These are your files as stored on Filecoin: each one is a <b>piece</b> of your PDP data set, identified by its piece CID. Jobs read your files and add their results here as new pieces.</p>
+    <div class="ds-wrap"><table class="ds"><tbody><tr><th>Piece</th><th>File</th><th>What</th><th>Size</th><th>Piece CID</th><th>On-chain</th></tr><tr>
+      <td>#0</td>
+      <td><a>customer-feedback.txt</a></td>
+      <td>your file</td>
+      <td>227 B</td>
+      <td class="mono" title="bafkzcibcdmbtnpm7f65xww3c6kfbz52mxpmuap6i4rofgkjmqzywuilzsvy3ady">bafkzcibcdmbtn…vy3ady</td>
+      <td><a href="https://calibration.filfox.info/en/message/bafy2bzacebvmv6gigi3m2dwvjwipjuo742sefkgq3x7mfeimvb347w4c33jte" target="_blank" rel="noopener">stored in this transaction</a></td></tr><tr>
+      <td>#1</td>
+      <td><a>meeting-notes.txt</a></td>
+      <td>your file</td>
+      <td>343 B</td>
+      <td class="mono" title="bafkzcibduuaqjggiic46w674pjui5fzwtjlkyewf6xw7raopawjtndzjstlow4y4">bafkzcibduuaqj…low4y4</td>
+      <td><a href="https://calibration.filfox.info/en/message/bafy2bzacebvmv6gigi3m2dwvjwipjuo742sefkgq3x7mfeimvb347w4c33jte" target="_blank" rel="noopener">stored in this transaction</a></td></tr><tr>
+      <td>#2</td>
+      <td><a>research-abstract.txt</a></td>
+      <td>your file</td>
+      <td>335 B</td>
+      <td class="mono" title="bafkzcibdvuaqihukfhzkastgyz2zmm55dnc6na6in2757viifvuoa7uh3kb3ueas">bafkzcibdvuaqi…b3ueas</td>
+      <td><a href="https://calibration.filfox.info/en/message/bafy2bzacebvmv6gigi3m2dwvjwipjuo742sefkgq3x7mfeimvb347w4c33jte" target="_blank" rel="noopener">stored in this transaction</a></td></tr><tr>
+      <td>#3</td>
+      <td><a>sales-2026.csv</a></td>
+      <td>your file</td>
+      <td>202 B</td>
+      <td class="mono" title="bafkzcibcgqbqjg7ou4cofugtf7sl3bc3cfuenekkryqhsx3xr6bfqovl6arysiq">bafkzcibcgqbqj…arysiq</td>
+      <td><a href="https://calibration.filfox.info/en/message/bafy2bzacebvmv6gigi3m2dwvjwipjuo742sefkgq3x7mfeimvb347w4c33jte" target="_blank" rel="noopener">stored in this transaction</a></td></tr><tr>
+      <td>#4</td>
+      <td><a>search-index.txt</a></td>
+      <td><span class="pill">result of job #1 (first contract version)</span></td>
+      <td>1639 B</td>
+      <td class="mono" title="bafkzcibdrebqnuxkcpdwo3j25qdjh45xbsddt3eirzpjjxzjlglwvxx4kuuhp4zt">bafkzcibdrebqn…uhp4zt</td>
+      <td><a href="https://calibration.filfox.info/en/message/bafy2bzacea7iwbxmnyfwdwrospmlev3seyg3gtjlwq6leximfmgjy64vtc3se" target="_blank" rel="noopener">stored in this transaction</a></td></tr><tr>
+      <td>#5</td>
+      <td><a>search-index (2).txt</a></td>
+      <td><span class="pill">result of job #2 (first contract version)</span></td>
+      <td>1639 B</td>
+      <td class="mono" title="bafkzcibdrebqnuxkcpdwo3j25qdjh45xbsddt3eirzpjjxzjlglwvxx4kuuhp4zt">bafkzcibdrebqn…uhp4zt</td>
+      <td><a href="https://calibration.filfox.info/en/message/bafy2bzacea5jxyslk5j732rp2nyca2wzkyftchthg3xl4ayq23gu4aebeze44" target="_blank" rel="noopener">stored in this transaction</a></td></tr><tr>
+      <td>#6</td>
+      <td><a>sales-summary.txt</a></td>
+      <td><span class="pill">result of job #1</span></td>
+      <td>128 B</td>
+      <td class="mono" title="bafkzcibcpybqlrxzv4uvqniidmahslddubbdeacslvdr5a3plnvuncbuzzobwmq">bafkzcibcpybql…zobwmq</td>
+      <td><a href="https://calibration.filfox.info/en/message/bafy2bzacebjvgdfwvj6hqg6dfs62qfw4yuid7insf5bocfi7cluorglbe72ty" target="_blank" rel="noopener">stored in this transaction</a></td></tr><tr>
+      <td>#7</td>
+      <td><a>search-index (3).txt</a></td>
+      <td><span class="pill">result of job #2</span></td>
+      <td>1639 B</td>
+      <td class="mono" title="bafkzcibdrebqnuxkcpdwo3j25qdjh45xbsddt3eirzpjjxzjlglwvxx4kuuhp4zt">bafkzcibdrebqn…uhp4zt</td>
+      <td><a href="https://calibration.filfox.info/en/message/bafy2bzacec7ovxhvhabbkmytzrfldnhpv7hbfoy6beegiqwuseflqor4gqfou" target="_blank" rel="noopener">stored in this transaction</a></td></tr><tr>
+      <td>#8</td>
+      <td><a>sales-summary (2).txt</a></td>
+      <td><span class="pill">result of job #3</span></td>
+      <td>128 B</td>
+      <td class="mono" title="bafkzcibcpybqlrxzv4uvqniidmahslddubbdeacslvdr5a3plnvuncbuzzobwmq">bafkzcibcpybql…zobwmq</td>
+      <td><a href="https://filecoin-testnet.blockscout.com/tx/0xd886afe24ff489b9c5eca0e4651a044b480683fe004a1049384922ec37a7b676" target="_blank" rel="noopener">stored in this transaction</a></td></tr><tr>
+      <td>#9</td>
+      <td><a>sales-summary (3).txt</a></td>
+      <td><span class="pill">result of job #4</span></td>
+      <td>128 B</td>
+      <td class="mono" title="bafkzcibcpybqlrxzv4uvqniidmahslddubbdeacslvdr5a3plnvuncbuzzobwmq">bafkzcibcpybql…zobwmq</td>
+      <td><a href="https://filecoin-testnet.blockscout.com/tx/0xd3a8b81701f0776a4a53b3b2e4a0c61b7a67b2e91497473a16ea6c9716634ccb" target="_blank" rel="noopener">stored in this transaction</a></td></tr><tr>
+      <td>#10</td>
+      <td><a>sales-summary (4).txt</a></td>
+      <td><span class="pill">result of job #5</span></td>
+      <td>128 B</td>
+      <td class="mono" title="bafkzcibcpybqlrxzv4uvqniidmahslddubbdeacslvdr5a3plnvuncbuzzobwmq">bafkzcibcpybql…zobwmq</td>
+      <td><a href="https://filecoin-testnet.blockscout.com/tx/0xf684eb61d5dc1c47f78bcab5ecc934e00a63caf35a1cafc48d0113134b98843d" target="_blank" rel="noopener">stored in this transaction</a></td></tr><tr>
+      <td>#11</td>
+      <td><a>search-index (4).txt</a></td>
+      <td><span class="pill">result of job #7</span></td>
+      <td>1639 B</td>
+      <td class="mono" title="bafkzcibdrebqnuxkcpdwo3j25qdjh45xbsddt3eirzpjjxzjlglwvxx4kuuhp4zt">bafkzcibdrebqn…uhp4zt</td>
+      <td><a href="https://filecoin-testnet.blockscout.com/tx/0x81a6299b49837291d6615285a497a40e84a02c37b315dd165d6064c59d96a458" target="_blank" rel="noopener">stored in this transaction</a></td></tr></tbody></table></div></div>
+  <div class="card panel" id="money"><div class="row" style="justify-content:space-between"><h2>Your money</h2><div class="row">
+    <button class="b" data-act="deposit" data-amount="1" title="Snapshot: buttons are disabled" disabled="">Add 1 USDFC</button>
+    <button class="b" data-act="withdraw" disabled="" title="Snapshot: buttons are disabled">Withdraw available funds to wallet</button></div></div>
+    <p class="muted" style="margin:.2em 0 0"><b>4.268 USDFC available</b> in your Filecoin Pay account, plus 0.499 on hold (open jobs and sessions, and your storage reserve). The compute service never holds your money: it can only put amounts on hold and pay providers, within the limits you approved. Add more when a job or session needs it; withdraw what is not on hold at any time.</p></div>
+
+  <div class="tabs"><button id="tab-time" class="" disabled="" title="Snapshot: buttons are disabled">Pay for time</button><button id="tab-job" class="on" disabled="" title="Snapshot: buttons are disabled">Pay per job</button><span class="muted" id="tabhint" style="align-self:center" hidden="">← choose one to try it</span></div>
+  <div class="card panel" id="time" hidden=""></div>
+  <div class="card panel" id="job"><h2>Pay per job: order a result</h2>
+    <p class="muted">The price is put on hold. The provider runs the program on your files and adds the result to your data set; it is paid only if it does so before the deadline.</p>
+    <div class="row"><select id="jobsel" disabled="" title="Snapshot: buttons are disabled"><option value="index" selected="">Build a search index of my files — 0.500 USDFC, deadline 10 min</option><option value="sales">Summarise my sales table — 0.200 USDFC, deadline 10 min</option><option value="late">Build a search index: see what happens if the provider misses the deadline — 0.500 USDFC, deadline 2 min</option></select><button class="b primary" data-act="postJob" disabled="" title="Snapshot: buttons are disabled">Order</button></div>
+    <div class="jobcard"><b>What this job does.</b> Reads your text files and builds an index: every word, and which files contain it.<br>
+      <span class="muted">Reads: your .txt files · Writes: search-index.txt · Price: 0.500 USDFC, paid only on delivery · Deadline: 10 min. The SP runs the program in a container next to your files (no network, your files read-only).</span></div>
+    
+    <div class="jobs"><div class="job"><div class="h"><b>#7 · Build a search index of my files</b><span class="pill ">delivered and paid</span></div>
+      
+      <div class="muted">Price 0.500 USDFC · deadline block 4089114</div>
+      <div>Result: <a>search-index (4).txt</a> <span class="muted">piece #11 in your data set</span></div>
+      </div><div class="job"><div class="h"><b>#6 · Build a search index: see what happens if the provider misses the deadline</b><span class="pill off">cancelled, money back</span></div>
+      
+      <div class="muted">Price 0.500 USDFC · deadline block 4088991</div>
+      
+      </div><div class="job"><div class="h"><b>#5 · Summarise my sales table</b><span class="pill ">delivered and paid</span></div>
+      
+      <div class="muted">Price 0.200 USDFC · deadline block 4088881</div>
+      <div>Result: <a>sales-summary (4).txt</a> <span class="muted">piece #10 in your data set</span></div>
+      </div><div class="job"><div class="h"><b>#4 · Summarise my sales table</b><span class="pill ">delivered and paid</span></div>
+      
+      <div class="muted">Price 0.200 USDFC · deadline block 4088816</div>
+      <div>Result: <a>sales-summary (3).txt</a> <span class="muted">piece #9 in your data set</span></div>
+      </div><div class="job"><div class="h"><b>#3 · Summarise my sales table</b><span class="pill ">delivered and paid</span></div>
+      
+      <div class="muted">Price 0.200 USDFC · deadline block 4088769</div>
+      <div>Result: <a>sales-summary (2).txt</a> <span class="muted">piece #8 in your data set</span></div>
+      </div><div class="job"><div class="h"><b>#2 · Build a search index of my files</b><span class="pill ">delivered and paid</span></div>
+      
+      <div class="muted">Price 0.500 USDFC · deadline block 4088507</div>
+      <div>Result: <a>search-index (3).txt</a> <span class="muted">piece #7 in your data set</span></div>
+      </div><div class="job"><div class="h"><b>#1 · Summarise my sales table</b><span class="pill ">delivered and paid</span></div>
+      
+      <div class="muted">Price 0.200 USDFC · deadline block 4088498</div>
+      <div>Result: <a>sales-summary.txt</a> <span class="muted">piece #6 in your data set</span></div>
+      </div></div></div>
+
+  <div class="card panel">
+    <h2>What is recorded on the chain</h2>
+    <p class="muted"></p>
+    <p>In the live demo this panel lists every transaction as it happens. In this snapshot, see the transaction links in the data set table above (each result was stored in its own transaction), and the contracts linked at the top.</p>
+  </div>
+
+  <div class="card panel" id="viewer" hidden=""></div>
+
+  <footer id="footer"><div>Filecoin Calibration network: 1 epoch = 30 seconds. USDFC and tFIL here are test tokens from faucets, with no value. Transactions are public: click an id to see it on the Blockscout explorer.</div>
+       <div>Real: Filecoin Pay, PDPVerifier, FWSS (FilOz's calibnet deployment), ComputeService (<code>0x04347c64F010f256f529aC94BC8Fe7A81abDf45A</code>), your signatures, piece CIDs computed from the files, the containers. Not run yet: proofs of possession (the demo provider does not run a prover; real proofs can be added later).</div></footer>
+</div>
+
+
+
+
+</body></html>
