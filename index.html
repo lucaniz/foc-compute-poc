@@ -2,16 +2,35 @@
 <html lang="en">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>FOC Compute POC</title>
-<meta http-equiv="refresh" content="0; url=https://differently-implementation-finishing-choice.trycloudflare.com">
+<title>FOC Compute simulation</title>
 <style>
-body{font:17px/1.5 system-ui,-apple-system,sans-serif;max-width:640px;margin:15vh auto;padding:0 16px;color:#0E1A2B;background:#EEF3F8}
-a{color:#0A74E8}
-@media (prefers-color-scheme: dark){body{color:#E4ECF6;background:#0A111C}a{color:#4C9DFF}}
+:root{--ink:#0E1A2B;--ink2:#5A6B80;--bg:#EEF3F8;--card:#FFFFFF;--line:#D8E1EB;--link:#0A74E8}
+@media (prefers-color-scheme: dark){:root{--ink:#E4ECF6;--ink2:#9AAABD;--bg:#0A111C;--card:#121C2B;--line:#223047;--link:#4C9DFF}}
+body{font:17px/1.55 system-ui,-apple-system,sans-serif;max-width:860px;margin:10vh auto;padding:0 16px;color:var(--ink);background:var(--bg)}
+a{color:var(--link)}
+.muted{color:var(--ink2)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px 22px;margin:22px 0}
+img{width:100%;height:auto;border-radius:10px;border:1px solid var(--line);background:#fff}
+#offline{display:none}
 </style>
-<h1>FOC Compute — proof of concept</h1>
-<p>Taking you to the live demo on Filecoin Calibration…</p>
-<p>If nothing happens, <a href="https://differently-implementation-finishing-choice.trycloudflare.com">open the demo</a>.</p>
-<p style="opacity:.7">If the demo does not load, it is offline for the moment: ask <a href="https://github.com/lucaniz">@lucaniz</a>.</p>
-<script>location.replace("https://differently-implementation-finishing-choice.trycloudflare.com");</script>
+<h1>FOC Compute — simulation</h1>
+<div id="checking"><p>Checking whether the live demo is running…</p></div>
+<div id="offline">
+  <div class="card">
+    <b>The live demo is offline right now.</b> It runs on a test machine during this early phase, so it is not always on.
+    For a live session, contact <a href="https://github.com/lucaniz">@lucaniz</a>.
+  </div>
+  <p><b>What the demo shows.</b> The storage provider that holds a client's data on Filecoin also computes on it, paid through Filecoin Pay: pay for time (rent a service next to your data) or pay per job (order a result). Every step is a real transaction on the Filecoin Calibration network.</p>
+  <img src="protocol-overview.png" alt="Protocol overview: the client, the ComputeService contract and the service provider; the steps of pay for time and pay per job; the guarantees.">
+  <p class="muted">If you believe the demo should be up, <a id="try" href="https://differently-implementation-finishing-choice.trycloudflare.com">try opening it directly</a>.</p>
+</div>
+<script>
+const DEMO = "https://differently-implementation-finishing-choice.trycloudflare.com";
+const offline = () => { document.getElementById("checking").style.display = "none"; document.getElementById("offline").style.display = "block"; };
+const ctl = new AbortController();
+setTimeout(() => ctl.abort(), 8000);
+fetch(DEMO + "/api/ping", { signal: ctl.signal, cache: "no-store" })
+  .then((r) => r.ok ? location.replace(DEMO) : offline())
+  .catch(offline);
+</script>
 </html>
