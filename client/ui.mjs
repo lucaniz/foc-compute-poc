@@ -29,6 +29,14 @@ async function checkChain() {
 
 PW.reportSteps((text) => { busy = text; render(); });
 
+// Whatever an action did — finished, was refused, or the provider went quiet halfway — what the page shows
+// afterwards is read back from the chain, never assumed from whether the call returned.
+async function reread() {
+  if (!set) return;
+  set = await PW.readSet(pick, set.dataSetId, jobs).catch(() => set);
+  mySets = null;
+}
+
 async function run(what, fn) {
   busy = what; error = null; render();
   try { return await fn(); }
@@ -156,7 +164,7 @@ function render() {
   document.querySelectorAll("a[data-drop]").forEach((a) => (a.onclick = () => { waiting.splice(Number(a.dataset.drop), 1); render(); }));
   if ($("rm")) $("rm").onclick = () => {
     if (!confirm(`Remove ${picked.size} file(s)? PDP drops them at the provider's next proving period. This cannot be undone.`)) return;
-    run("Removing files", async () => { await PW.removeFiles(pick, set.dataSetId, [...picked]); picked = new Set(); set = await PW.readSet(pick, set.dataSetId, jobs); });
+    run("Removing files", async () => { try { await PW.removeFiles(pick, set.dataSetId, [...picked]); picked = new Set(); } finally { await reread(); } });
   };
   document.querySelectorAll("input[type=checkbox][data-id]").forEach((b) => (b.onchange = () => {
     b.checked ? picked.add(b.dataset.id) : picked.delete(b.dataset.id); render();
@@ -269,12 +277,13 @@ function stage(list) {
 function addFiles(list) {
   if (!list.length) return;
   const names = list.map((f) => f.name).join(", ");
-  if (set) return run(`Adding ${names}`, async () => { await PW.addFiles(pick, set.dataSetId, list); set = await PW.readSet(pick, set.dataSetId, jobs); });
+  if (set) return run(`Adding ${names}`, async () => { try { await PW.addFiles(pick, set.dataSetId, list); } finally { await reread(); } });
   return run(`Creating ${typed.label ? `"${typed.label}"` : "a data set"} with ${names}`, async () => {
     const id = await PW.createSet(pick, list, typed.label);
     typed.label = "";
     store.set("set-" + pick, String(id));
     set = await PW.readSet(pick, id, jobs);
+    mySets = null;
   });
 }
 
