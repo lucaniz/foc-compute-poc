@@ -231,6 +231,21 @@ async function inWindow(fn) {
   return out;
 }
 
+// The data sets this wallet pays for, at this provider. Warm Storage names the payer when a data set is
+// created, but does not index it, so the filtering happens here.
+export async function findDataSets(providerId) {
+  const p = provider(providerId);
+  const logs = await inWindow((fromBlock, toBlock) => pub.getContractEvents({ address: C.fwss,
+    abi: ABI.FilecoinWarmStorageService, eventName: "DataSetCreated", fromBlock, toBlock }).catch(() => []));
+  const mine = [];
+  for (const l of logs) {
+    if (getAddress(l.args.payer) !== me) continue;
+    if (getAddress(l.args.serviceProvider) !== getAddress(p.address)) continue;
+    mine.push(Number(l.args.dataSetId));
+  }
+  return [...new Set(mine)].sort((a, b) => a - b);
+}
+
 export async function findJobs() {
   const logs = await inWindow((fromBlock, toBlock) => pub.getContractEvents({ address: C.cs, abi: ABI.ComputeService,
     eventName: "JobPosted", args: { client: me }, fromBlock, toBlock }).catch(() => []));
