@@ -219,8 +219,8 @@ function render() {
       Nothing is charged until the provider says it is running, and closing it stops the charge at that epoch.</p>
       <div class="row">
         <select id="svc">${Object.entries(svc).map(([t, x]) => `<option value="${esc(t)}" ${t === service ? "selected" : ""}>${esc(x.name)} — ${esc(x.rate)} ${esc(CFG.token)} per epoch</option>`).join("")}</select>
-        <button class="b primary" id="startsvc" ${busy || live.length ? "disabled" : ""}>Start it</button>
-        <span class="muted">${live.length ? "One at a time here." : `about ${(Number(spec.rate) * 120).toFixed(2)} ${esc(CFG.token)} an hour · 1 epoch = 30 s`}</span>
+        <button class="b primary" id="startsvc" ${busy ? "disabled" : ""}>Start it</button>
+        <span class="muted">about ${(Number(spec.rate) * 120).toFixed(2)} ${esc(CFG.token)} an hour · 1 epoch = 30 s${live.length ? ` · ${live.length} already running, costing ${(live.reduce((n, [, x]) => n + Number(x.rate), 0) * 120).toFixed(2)} an hour together` : ""}</span>
       </div>
       <p class="muted" style="margin:8px 0 0">${esc(spec.note ?? "")}</p>
       ${Object.keys(sessions).length ? `<div class="tw" style="margin-top:12px"><table>
