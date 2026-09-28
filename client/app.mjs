@@ -86,7 +86,11 @@ async function send(address, abi, functionName, args) {
   onStep(`${lastStep} — confirm in your wallet (open MetaMask if it did not come to the front)`);
   const hash = await wallet.writeContract({ ...request, account: me, chain, gas });
   onStep(`${lastStep} — sent, waiting for a block (about 30 seconds)`);
-  return pub.waitForTransactionReceipt({ hash, timeout: 600_000 });
+  const receipt = await pub.waitForTransactionReceipt({ hash, timeout: 600_000 });
+  // A mined transaction is not a successful one. Without this check a reverted call looks exactly like a
+  // completed one to everything above, and the page reports work that never happened.
+  if (receipt.status !== "success") throw new Error(`the transaction was mined but reverted (${hash}); nothing changed on chain`);
+  return receipt;
 }
 
 // ---------------------------------------------------------------- money
@@ -358,7 +362,24 @@ export async function findSessions() {
     if (!x?.[0] || getAddress(x[0]) !== me) continue;
     const type = Object.keys(CFG.services ?? {}).find((t) => keccak256(toHex(t)) === x[6]);
     out[String(id)] = { sessionId: String(id), type: type ?? x[6].slice(0, 10), rate: formatUnits(x[3], 18),
-      dataSetId: Number(x[5]), status: ["none", "waiting for the provider", "running", "closed"][Number(x[7])] };
+      dataSetId: Number(x[5]), railId: String(x[2]), status: ["none", "waiting for the provider", "running", "closed"][Number(x[7])] };
+  }
+  if (!Object.keys(out).length) return out;
+  // When the meter started and when it stopped. A per-epoch charge that the page cannot show honestly is
+  // worse than no page at all, so these come from the events, not from what this browser remembers doing.
+  const head = Number(await pub.getBlockNumber());
+  for (const name of ["SessionReady", "SessionClosed"]) {
+    for (const l of await inWindow((fromBlock, toBlock) => pub.getContractEvents({ address: C.cs, abi: ABI.ComputeService,
+      eventName: name, fromBlock, toBlock }).catch(() => []))) {
+      const s = out[String(l.args.sessionId)];
+      if (s) s[name === "SessionReady" ? "readyBlock" : "closedBlock"] = Number(l.blockNumber);
+    }
+  }
+  for (const s of Object.values(out)) {
+    if (!s.readyBlock) { s.epochs = 0; s.owed = "0"; continue; }
+    s.epochs = Math.max(0, (s.closedBlock ?? head) - s.readyBlock);
+    s.owed = (s.epochs * Number(s.rate)).toFixed(3);
+    s.running = s.status === "running";
   }
   return out;
 }

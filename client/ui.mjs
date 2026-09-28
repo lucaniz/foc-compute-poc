@@ -229,7 +229,7 @@ function render() {
           <td>#${esc(id)} ${esc(svc[x.type]?.name ?? x.type)}<br><span class="muted">${esc(x.rate)} ${esc(CFG.token)} per epoch</span></td>
           <td><span class="pill ${x.status === "running" ? "ok" : x.status === "closed" ? "off" : ""}">${esc(x.status ?? "…")}</span></td>
           <td>${x.epochs ? `${x.epochs} epochs (~${Math.round(x.epochs / 2)} min)` : "—"}</td>
-          <td>${esc(x.spent ?? "0")} ${esc(CFG.token)}</td>
+          <td>${esc(x.owed ?? x.spent ?? "0")} ${esc(CFG.token)}${x.status === "running" ? ` <span class="muted">and counting</span>` : ""}</td>
           <td>${x.status === "closed"
             ? (x.tx ? `<a href="${esc(CFG.explorer + x.tx)}" target="_blank" rel="noopener">opened</a>` : "")
             : `<button class="b" data-stop="${esc(id)}" ${busy ? "disabled" : ""}>Stop and stop paying</button>`}</td></tr>`).join("")}
@@ -238,11 +238,12 @@ function render() {
     $("startsvc").onclick = () => run("Starting the service", async () => {
       const r = await PW.openSession(pick, set.dataSetId, service);
       sessions[r.sessionId] = { ...r, sessionId: r.sessionId, type: service, rate: svc[service].rate, status: "waiting for the provider" };
+      sessions = await PW.findSessions().catch(() => sessions);
       await refreshMoney();
     });
     document.querySelectorAll("button[data-stop]").forEach((b) => (b.onclick = () => run("Stopping the service", async () => {
       await PW.closeSession(b.dataset.stop);
-      sessions[b.dataset.stop].status = "closed";
+      sessions = await PW.findSessions().catch(() => sessions);
       await refreshMoney();
     })));
   }
@@ -309,6 +310,8 @@ async function poll() {
       if (set) set = await PW.readSet(pick, set.dataSetId, jobs).catch(() => set);
     }
   }
+  const live = await PW.findSessions().catch(() => null);
+  if (live) sessions = live;
   render();
 }
 
