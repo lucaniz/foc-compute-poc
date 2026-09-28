@@ -1,5 +1,6 @@
 // The page. All of the thinking is in app.mjs; this draws it and keeps a little state in the browser.
-import * as PW from "./app.mjs";
+const V = new URL(import.meta.url).searchParams.get("v") ?? "";
+const PW = await import(`./app.mjs${V ? "?v=" + V : ""}`);
 
 const $ = (id) => document.getElementById(id);
 const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));

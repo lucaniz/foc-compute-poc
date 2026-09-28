@@ -9,8 +9,10 @@ import {
 import { CID } from "https://cdn.jsdelivr.net/npm/multiformats@13.3.6/+esm";
 import { sp as SP, piece as Piece, chains as Chains } from "https://cdn.jsdelivr.net/npm/@filoz/synapse-core@0.9.1/+esm";
 
-export const CFG = await fetch("config.json").then((r) => r.json());
-export const ABI = await fetch("abi.json").then((r) => r.json());
+const V = new URL(import.meta.url).searchParams.get("v") ?? "";
+const q = V ? `?v=${V}` : "";
+export const CFG = await fetch(`config.json${q}`).then((r) => r.json());
+export const ABI = await fetch(`abi.json${q}`).then((r) => r.json());
 for (const k of Object.keys(ABI)) if (k !== "Errors") ABI[k] = [...ABI[k], ...ABI.Errors]; // so reverts decode
 const C = { ...CFG.contracts, cs: getAddress(CFG.computeService) };
 const chain = CFG.chainId === 314 ? Chains.mainnet : Chains.calibration;
